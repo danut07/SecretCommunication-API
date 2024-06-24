@@ -1,11 +1,13 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using SecretCommunication.BusinessLayer.Interface;
+using SecretCommunication_API.Models.ImageSteganography;
+using SecretCommunication_API.Utils;
 
 namespace SecretCommunication_API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class ImageController : ControllerBase
+    public class ImageController : BaseApiController
     {
         private readonly IImageService _imageService;
 
@@ -14,40 +16,32 @@ namespace SecretCommunication_API.Controllers
             _imageService = imageService;
         }
 
-        [HttpPost("upload")]
-        public async Task<IActionResult> UploadImage(IFormFile image)
-        {
-            if (image == null || image.Length == 0)
-                return BadRequest("No image uploaded.");
-
-            var processedImage = await _imageService.ProcessImageAsync(image);
-            return File(processedImage, "application/octet-stream");
-        }
-
         [HttpPost("embed")]
-        public async Task<IActionResult> EmbedMessage(IFormFile image, string message)
+        public async Task<IActionResult> EmbedMessage([FromForm] IFormFile image, [FromForm] string message)
         {
-            if (image == null || image.Length == 0)
-                return BadRequest("No image uploaded.");
-
-            if (string.IsNullOrEmpty(message))
-                return BadRequest("No message provided.");
-
-            var modifiedImage = await _imageService.EmbedMessageAsync(image, message);
-            return File(modifiedImage, "application/octet-stream");
+            try
+            {
+                var resultBytes = await _imageService.EmbedMessageAsync(image, message);
+                return File(resultBytes, "image/png", "embedded_image.png");
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
-        [HttpPost("extract")]
-        public async Task<IActionResult> ExtractMessage(IFormFile image, int messageLength)
+        [HttpPost("decode")]
+        public async Task<IActionResult> DecodeMessage([FromForm] IFormFile image)
         {
-            if (image == null || image.Length == 0)
-                return BadRequest("No image uploaded.");
-
-            if (messageLength <= 0)
-                return BadRequest("Invalid message length.");
-
-            var message = await _imageService.ExtractMessageAsync(image, messageLength);
-            return Ok(message);
+            try
+            {
+                string message = await _imageService.DecodeMessageAsync(image);
+                return Ok(message);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
     }
 }

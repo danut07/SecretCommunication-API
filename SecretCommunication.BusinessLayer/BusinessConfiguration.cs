@@ -1,5 +1,4 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
-using SecretCommunication.BusinessLayer.Implementation;
 using SecretCommunication.BusinessLayer.Interface;
 
 namespace SecretCommunication.BusinessLayer
