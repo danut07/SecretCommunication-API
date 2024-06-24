@@ -19,8 +19,10 @@ namespace SecretCommunication_API.Controllers
             try
             {
                 var resultBytes = await _imageService.EmbedMessageAsync(image, message);
-                string fileName = Path.ChangeExtension(image.FileName, ".png");
-                return File(resultBytes, "image/png", fileName);
+                string extension = Path.GetExtension(image.FileName).ToLower();
+                string contentType = extension == ".bmp" ? "image/bmp" : "image/png";
+                string fileName = Path.ChangeExtension(image.FileName, extension == ".bmp" ? ".bmp" : ".png");
+                return File(resultBytes, contentType, fileName);
             }
             catch (ArgumentException ex)
             {
