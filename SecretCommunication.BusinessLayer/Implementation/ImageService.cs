@@ -4,7 +4,7 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.Text;
 
-public class ImageService : IImageService
+public class ImageService :IImageService
 {
     public async Task<byte[]> EmbedMessageAsync(IFormFile image, string message)
     {

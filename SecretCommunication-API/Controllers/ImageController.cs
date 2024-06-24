@@ -1,19 +1,16 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using SecretCommunication.BusinessLayer.Interface;
-using SecretCommunication_API.Models.ImageSteganography;
-using SecretCommunication_API.Utils;
 
 namespace SecretCommunication_API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class ImageController : BaseApiController
+    public class ImageController : ControllerBase
     {
-        private readonly IImageService _imageService;
+        private readonly ImageService _imageService;
 
-        public ImageController(IImageService imageService)
+        public ImageController()
         {
-            _imageService = imageService;
+            _imageService = new ImageService();
         }
 
         [HttpPost("embed")]
@@ -22,7 +19,8 @@ namespace SecretCommunication_API.Controllers
             try
             {
                 var resultBytes = await _imageService.EmbedMessageAsync(image, message);
-                return File(resultBytes, "image/png", "embedded_image.png");
+                string fileName = Path.ChangeExtension(image.FileName, ".png");
+                return File(resultBytes, "image/png", fileName);
             }
             catch (ArgumentException ex)
             {
