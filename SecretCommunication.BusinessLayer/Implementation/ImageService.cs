@@ -18,6 +18,12 @@ public class ImageService : IImageService
             throw new ArgumentException("No message provided.");
         }
 
+        string extension = Path.GetExtension(image.FileName).ToLower();
+        if (extension != ".png" && extension != ".bmp")
+        {
+            throw new ArgumentException("Only .png and .bmp files are supported.");
+        }
+
         using (var memoryStream = new MemoryStream())
         {
             await image.CopyToAsync(memoryStream);
@@ -42,8 +48,14 @@ public class ImageService : IImageService
 
                 using (var resultStream = new MemoryStream())
                 {
-                    ImageFormat format = GetImageFormat(image.FileName);
-                    embeddedImage.Save(resultStream, format);
+                    if (extension == ".bmp")
+                    {
+                        embeddedImage.Save(resultStream, ImageFormat.Bmp);
+                    }
+                    else
+                    {
+                        embeddedImage.Save(resultStream, ImageFormat.Png);
+                    }
                     return resultStream.ToArray();
                 }
             }
@@ -55,6 +67,12 @@ public class ImageService : IImageService
         if (image == null || image.Length == 0)
         {
             throw new ArgumentException("No image uploaded.");
+        }
+
+        string extension = Path.GetExtension(image.FileName).ToLower();
+        if (extension != ".png" && extension != ".bmp")
+        {
+            throw new ArgumentException("Only .png and .bmp files are supported.");
         }
 
         using (var memoryStream = new MemoryStream())
@@ -162,26 +180,5 @@ public class ImageService : IImageService
         else if (bv == 1 && bit == 0)
             n ^= toggle;
         return n;
-    }
-
-    private ImageFormat GetImageFormat(string fileName)
-    {
-        string extension = Path.GetExtension(fileName).ToLower();
-        switch (extension)
-        {
-            case ".bmp":
-                return ImageFormat.Bmp;
-            case ".jpg":
-            case ".jpeg":
-                return ImageFormat.Jpeg;
-            case ".png":
-                return ImageFormat.Png;
-            case ".gif":
-                return ImageFormat.Gif;
-            case ".tiff":
-                return ImageFormat.Tiff;
-            default:
-                return ImageFormat.Png;
-        }
     }
 }
