@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using SecretCommunication.BusinessLayer.Interface;
+using SecretCommunication_API.BusinessLayer;
 
 namespace SecretCommunication.BusinessLayer
 {
@@ -8,6 +9,7 @@ namespace SecretCommunication.BusinessLayer
         public static void RegisterBusinessLayer(this IServiceCollection services)
         {
             services.AddScoped<IImageService, ImageService>();
+            services.AddScoped<IAudioService, AudioService>();
         }
     }
 }

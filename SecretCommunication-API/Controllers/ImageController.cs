@@ -1,4 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using SecretCommunication_API.Models.ImageSteganography.Request;
+using SecretCommunication_API.Models.ImageSteganography.Response;
+using System.Threading.Tasks.Dataflow;
 
 namespace SecretCommunication_API.Controllers
 {
@@ -14,14 +17,14 @@ namespace SecretCommunication_API.Controllers
         }
 
         [HttpPost("embed")]
-        public async Task<IActionResult> EmbedMessage([FromForm] IFormFile image, [FromForm] string message)
+        public async Task<IActionResult> EmbedMessage([FromForm] ImageSteganographyRequest request)
         {
             try
             {
-                var resultBytes = await _imageService.EmbedMessageAsync(image, message);
-                string extension = Path.GetExtension(image.FileName).ToLower();
+                var resultBytes = await _imageService.EmbedMessageAsync(request.Image, request.Message);
+                string extension = Path.GetExtension(request.Image.FileName).ToLower();
                 string contentType = extension == ".bmp" ? "image/bmp" : "image/png";
-                string fileName = Path.ChangeExtension(image.FileName, extension == ".bmp" ? ".bmp" : ".png");
+                string fileName = Path.ChangeExtension(request.Image.FileName, extension == ".bmp" ? ".bmp" : ".png");
                 return File(resultBytes, contentType, fileName);
             }
             catch (ArgumentException ex)
@@ -31,11 +34,11 @@ namespace SecretCommunication_API.Controllers
         }
 
         [HttpPost("decode")]
-        public async Task<IActionResult> DecodeMessage([FromForm] IFormFile image)
+        public async Task<ActionResult<ImageSteganographyResponse>> DecodeMessage([FromForm] IFormFile image)
         {
             try
             {
-                string message = await _imageService.DecodeMessageAsync(image);
+                var message = await _imageService.DecodeMessageAsync(image);
                 return Ok(message);
             }
             catch (ArgumentException ex)
